@@ -123,8 +123,38 @@ const updateProfile = async (req,res) => {
     }
 }
 
+const checkAuthentication = async (req,res) => {
+    try {
+        const userId = req.user.userId;
+        if(!userId) {
+            return response(res, 401, 'Unauthorized');
+        }
+        const user = await User.findById({ _id: userId });
+        if(!user) {
+            return response(res, 404, 'User not found');
+        }
+
+        return response(res, 200, 'User found successfully');
+    } catch(error) {
+        console.error(error.message);
+        return response(res, 500, 'Internal server error');
+    }
+}
+
+const logout = (req,res) => {
+    try {
+        res.cookie('authToken', {expires: new Date(0)});
+        return response(res, 200, 'User logged out successfully');
+    } catch(error) {
+        console.error(error.message);
+        return response(res, 500, 'Internal server error');
+    }
+}
+
 module.exports = {
     sendOTP,
     verifyOTP,
-    updateProfile
+    updateProfile,
+    checkAuthentication,
+    logout
 }
